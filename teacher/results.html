@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <base href="https://uliatumeneva161.github.io/checking-teachers">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Кабинет преподавателя - Результаты</title>
@@ -107,6 +106,23 @@
                 }
             });
         }
+
+        function getTeacherBasePath() {
+    if (window.location.hostname.includes('github.io')) {
+        const repoName = window.location.pathname.split('/')[1];
+        return `/${repoName}/teacher/`;
+    }
+    return '';
+}
+
+function fixTeacherLinks() {
+    const basePath = getTeacherBasePath();
+    document.querySelectorAll('.nav-menu a[href$=".html"]').forEach(link => {
+        const href = link.getAttribute('href');
+        link.setAttribute('href', basePath + href);
+    });
+}
+document.addEventListener('DOMContentLoaded', fixTeacherLinks);
     </script>
 </body>
 </html>
