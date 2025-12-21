@@ -855,28 +855,5 @@ function initPage() {
         questionCounter = 1; 
     }
 }
-function getBasePath() {
-    if (window.location.hostname.includes('github.io')) {
-        const repoName = window.location.pathname.split('/')[1];
-        return `/${repoName}/admin/`;
-    }
-    return '';
-}
 
-function fixAdminLinks() {
-    const basePath = getBasePath();
-    
-    // Исправляем ссылки навигации
-    document.querySelectorAll('.nav-link[href$=".html"]').forEach(link => {
-        const href = link.getAttribute('href');
-        link.setAttribute('href', basePath + href);
-    });
-    
-    // Исправляем ссылку "Выйти"
-    const logoutLink = document.querySelector('a.btn-danger[href$="index.html"]');
-    if (logoutLink) {
-        logoutLink.setAttribute('href', `/${repoName}/index.html`);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', initPage, fixAdminLinks);
+document.addEventListener('DOMContentLoaded', initPage);
