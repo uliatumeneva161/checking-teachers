@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кабинет преподавателя - Доступные тесты</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-school"></i>
+            </div>
+            <div class="logo-text">
+                <h1>Кабинет преподавателя</h1>
+                <p>Учебный портал</p>
+            </div>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <h3 id="teacher-name">Петров Иван Сергеевич</h3>
+                <p id="teacher-subject">Математика</p>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <aside class="sidebar">
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Обзор</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="currTest.html">
+                        <i class="fas fa-tasks"></i>
+                        <span>Доступные тесты</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="results.html">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Результаты</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="profile.html">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Профиль</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        <main class="main-content">
+            <div class="content-tab active">
+                <div class="tab-header">
+                    <h2>Тесты по предмету: <span id="tests-subject">Математика</span></h2>
+                    <div class="tab-actions">
+                        <!-- <button class="btn-refresh" id="refresh-tests">
+                            <i class="fas fa-sync-alt"></i>
+                            Обновить список
+                        </button> -->
+                    </div>
+                </div>
+                
+                <div class="tests-container">
+                    <div class="test-categories">
+                        <button class="category-tab active" data-category="available">Доступные тесты</button>
+                        <button class="category-tab" data-category="completed">Пройденные тесты</button>
+                        <button class="category-tab" data-category="all">Все тесты</button>
+                    </div>
+                    
+                    <div class="category-content active" id="category-available">
+                        <div class="tests-grid" id="tests-available-grid">
+                        </div>
+                    </div>
+                    
+                    <div class="category-content" id="category-completed">
+                        <div class="tests-grid" id="tests-completed-grid">
+                        </div>
+                    </div>
+                    
+                    <div class="category-content" id="category-all">
+                        <div class="tests-grid" id="tests-all-grid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="modal-overlay" id="test-modal">
+        <div class="modal test-modal">
+            <div class="modal-header">
+                <h3 id="test-modal-title">Прохождение теста</h3>
+                <div class="test-timer">
+                    <i class="fas fa-clock"></i>
+                    <span id="timer">00:00</span>
+                </div>
+                <button class="modal-close" id="close-test-modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="test-info">
+                    <div class="test-meta">
+                        <span><i class="fas fa-book"></i> <span id="test-subject-name">Математика</span></span>
+                        <span><i class="fas fa-question-circle"></i> <span id="test-questions-count">10 вопросов</span></span>
+                        <span><i class="fas fa-hourglass-half"></i> <span id="test-time-limit">20 минут</span></span>
+                    </div>
+                    <p id="test-description">Тест по основам алгебры и геометрии.</p>
+                </div>
+                
+                <div class="test-instructions" id="test-instructions">
+                    <h4>Инструкции:</h4>
+                    <ul>
+                        <li>У вас есть ограниченное время на прохождение теста</li>
+                        <li>Выберите один правильный ответ для каждого вопроса</li>
+                        <li>Вы можете пропустить вопрос и вернуться к нему позже</li>
+                        <li>После завершения вы увидите свой результат</li>
+                    </ul>
+                </div>
+                
+                <div class="test-start" id="test-start-section">
+                    <button class="btn-start-test" id="start-test-btn">
+                        <i class="fas fa-play"></i>
+                        Начать тест
+                    </button>
+                </div>
+                
+                <div class="test-questions" id="test-questions-section" style="display: none;">
+                    <div class="question-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-text">
+                            Вопрос <span id="current-question">1</span> из <span id="total-questions">10</span>
+                        </div>
+                    </div>
+                    
+                    <div class="question-container">
+                        <div class="question-text" id="question-text">
+                        </div>
+                        
+                        <div class="options-list" id="options-list">
+                        </div>
+                    </div>
+                    
+                    <div class="question-navigation">
+                        <button class="btn-prev-question" id="prev-question-btn" disabled>
+                            <i class="fas fa-arrow-left"></i>
+                            Назад
+                        </button>
+                        
+                        <div class="question-buttons">
+                            <button class="btn-skip-question" id="skip-question-btn">
+                                <i class="fas fa-forward"></i>
+                                Пропустить
+                            </button>
+                            
+                            <button class="btn-next-question" id="next-question-btn">
+                                Следующий вопрос
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                            
+                            <button class="btn-complete-test" id="complete-test-btn" style="display: none;">
+                                <i class="fas fa-check-circle"></i>
+                                Завершить тест
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="test-results" id="test-results-section" style="display: none;">
+                    <div class="results-summary">
+                        <h4>Результаты теста</h4>
+                        <div class="result-score">
+                            <div class="score-circle">
+                                <span id="final-score">0</span>%
+                            </div>
+                            <p>Ваш результат</p>
+                        </div>
+                        
+                        <div class="result-details">
+                            <div class="result-item">
+                                <span class="result-label">Правильных ответов:</span>
+                                <span class="result-value" id="correct-answers">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Неправильных ответов:</span>
+                                <span class="result-value" id="wrong-answers">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Пропущено вопросов:</span>
+                                <span class="result-value" id="skipped-questions">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Затраченное время:</span>
+                                <span class="result-value" id="time-spent">00:00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button class="btn-review-test" id="review-test-btn">
+                            <i class="fas fa-eye"></i>
+                            Посмотреть ответы
+                        </button>
+                        <button class="btn-close-test" id="close-results-btn">
+                            <i class="fas fa-times"></i>
+                            Закрыть
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="review-modal">
+        <div class="modal review-modal">
+            <div class="modal-header">
+                <h3>Просмотр ответов</h3>
+                <button class="modal-close" id="close-review-modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="review-questions" id="review-questions">
+                </div>
+                
+                <div class="review-actions">
+                    <button class="btn-close-review" id="close-review-btn">
+                        Закрыть
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal confirm-modal">
+            <div class="modal-header">
+                <h3>Подтверждение</h3>
+                <button class="modal-close" id="close-confirm-modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <p id="confirm-message">Вы уверены, что хотите начать тест?</p>
+                <div class="confirm-actions">
+                    <button class="btn-confirm-cancel" id="cancel-confirm-btn">Отмена</button>
+                    <button class="btn-confirm-ok" id="ok-confirm-btn">Подтвердить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="teacher.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            populateUserData();
+            loadAvailableTests();
+            setupTestPageListeners();
+        });
+
+        function setupTestPageListeners() {
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const categoryId = this.dataset.category;
+                    switchCategory(categoryId);
+                });
+            });
+            const refreshBtn = document.getElementById('refresh-tests');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    loadAvailableTests();
+                    showNotification('Список тестов обновлен', 'success');
+                });
+            }
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.modal-overlay').classList.remove('active');
+                });
+            });
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            });
+
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.btn-start-test')) {
+                    const testId = parseInt(e.target.closest('.btn-start-test').dataset.testId);
+                    startTest(testId);
+                }
+                if (e.target.closest('.btn-view-result')) {
+                    const testId = parseInt(e.target.closest('.btn-view-result').dataset.testId);
+                    viewTestResult(testId);
+                }
+                if (e.target.closest('#start-test-btn')) {
+                    beginTest();
+                }
+                
+                if (e.target.closest('#prev-question-btn')) {
+                    prevQuestion();
+                }
+                
+                if (e.target.closest('#next-question-btn')) {
+                    nextQuestion();
+                }
+                
+                if (e.target.closest('#skip-question-btn')) {
+                    skipQuestion();
+                }
+                
+                if (e.target.closest('#complete-test-btn')) {
+                    completeTest();
+                }
+                
+                if (e.target.closest('#review-test-btn')) {
+                    showAnswersReview();
+                }
+                
+                if (e.target.closest('#close-results-btn')) {
+                    document.getElementById('test-modal').classList.remove('active');
+                }
+                
+                if (e.target.closest('#close-review-btn')) {
+                    document.getElementById('review-modal').classList.remove('active');
+                }
+                if (e.target.closest('#cancel-confirm-btn')) {
+                    document.getElementById('confirm-modal').classList.remove('active');
+                }
+                
+                if (e.target.closest('#ok-confirm-btn')) {
+                    document.getElementById('confirm-modal').classList.remove('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
