@@ -43,8 +43,7 @@
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             padding: 50px;
-            max-width: 500px;
-            width: 100%;
+            width: clamp(300px, 80%, 700px);
             text-align: center;
         }
 
@@ -147,7 +146,6 @@
             border-top: 1px solid var(--light-gray);
         }
 
-        /* Адаптивность */
         @media (max-width: 768px) {
             .login-container {
                 padding: 40px 30px;
@@ -177,6 +175,11 @@
                 padding: 14px 20px;
             }
         }
+        @media (max-width: 376px){
+            .login-container{
+                min-width: 300px;
+            }
+        }        
     </style>
 </head>
 <body>
