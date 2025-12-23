@@ -106,7 +106,7 @@
             grid-template-columns: minmax(250px,250px) 1fr;
             width: 100%;
             gap: 25px;
-            padding: 0 20px 20px;
+            padding: 20px 0;
             max-width: 1400px;
             margin: 0 auto;
             overflow-x: visible;
@@ -155,9 +155,10 @@
             width: 20px;
             text-align: center;
         }
-
+       
         .main-content {
             min-width: 0;
+           
             display: flex;
             flex-direction: column;
             gap: 25px;
@@ -1119,7 +1120,8 @@
             }
             .container {
                 grid-template-columns: 1fr;
-                padding: 0 15px 15px;
+                padding: 15px 0px;
+
             }
             
             .sidebar {
