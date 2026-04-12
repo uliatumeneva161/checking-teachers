@@ -191,12 +191,12 @@
         </p>
 
         <div class="button-container">
-            <a href="admin/admin.html" class="button button-admin">
+            <a href="admin/admin-login.php" class="button button-admin">
                 <i class="fas fa-user-shield"></i>
                 Вход администратора
             </a>
             
-            <a href="teacher/index.html" class="button button-teacher">
+            <a href="teacher/teach-login.php" class="button button-teacher">
                 <i class="fas fa-chalkboard-teacher"></i>
                 Вход учителя
             </a>
@@ -230,3 +230,4 @@ document.addEventListener('DOMContentLoaded', fixTeacherLinks);
     </script>
 </body>
 </html>
+

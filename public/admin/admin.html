@@ -15,13 +15,13 @@
                     <i class="fas fa-school"></i>
                 </div>
                 <div class="logo-text">
-                    <h1>Административная панель</h1>
+                     <h1>Административная панель</h1>
                     <p>Управление учебным заведением</p>
                 </div>
 
               
             </div>
-              <a href="/checking-teachers/index.html" class="btn btn-danger">Выйти</a>
+              <a href="../index.php" class="btn btn-danger">Выйти</a>
         </header>
 
         <div class="main-layout">
@@ -34,7 +34,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="teachers.html" class="nav-link">
+                          <a href="teachers.html" class="nav-link">
                             <i class="fas fa-chalkboard-teacher"></i>
                             <span>Управление учителями</span>
                         </a>
@@ -53,8 +53,7 @@
                     </li>
                 </ul>
             </aside>
-
-            <main>
+<main>
                 <div class="content active" id="dashboard">
                     <div class="content-header">
                         <h2 class="content-title">Панель управления</h2>
@@ -74,7 +73,7 @@
                         <div class="stat-card">
                             <div class="stat-icon subjects">
                                 <i class="fas fa-book-open"></i>
-                            </div>
+                                      </div>
                             <div class="stat-info">
                                 <h3 id="subjects-count">0</h3>
                                 <p>Предметов</p>
@@ -93,7 +92,7 @@
                 </div>
 
                 <div class="content" id="teachers-content">
-                    <div class="content-header">
+                       <div class="content-header">
                         <h2 class="content-title">Управление учителями</h2>
                         <button class="btn btn-primary" id="add-teacher-btn">
                             <i class="fas fa-plus"></i> Добавить учителя
@@ -113,7 +112,7 @@
                                 </tr>
                             </thead>
                             <tbody id="teachers-table-body">
-                        
+                                
                             </tbody>
                         </table>
                     </div>
@@ -133,7 +132,7 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Название предмета</th>
-                                    <th>Количество учителей</th>
+                                       <th>Количество учителей</th>
                                     <th>Количество тестов</th>
                                     <th>Действия</th>
                                 </tr>
@@ -152,8 +151,7 @@
                             <i class="fas fa-plus"></i> Создать тест
                         </button>
                     </div>
-                    
-                    <div class="table-container">
+                       <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
@@ -173,7 +171,7 @@
                 </div>
             </main>
         </div>
-    </div>
+         </div>
     <div class="modal-overlay" id="add-teacher-modal">
         <div class="modal">
             <div class="modal-header">
@@ -192,7 +190,7 @@
                             <input type="text" id="teacher-login" required>
                         </div>
                     </div>
-                    <div class="form-row">
+                      <div class="form-row">
                         <div class="form-group">
                             <label for="teacher-password">Пароль *</label>
                             <input type="password" id="teacher-password" required>
@@ -210,7 +208,7 @@
                     </div>
                 </form>
             </div>
-        </div>
+            </div>
     </div>
 
     <div class="modal-overlay" id="add-test-modal">
@@ -230,7 +228,7 @@
                             <label for="test-subject">Предмет *</label>
                             <select id="test-subject" required>
                                 <option value="">Выберите предмет</option>
-                            </select>
+                                 </select>
                         </div>
                     </div>
                     
@@ -262,7 +260,7 @@
                             <button type="button" class="btn btn-sm add-option-btn" data-question-id="1">
                                 <i class="fas fa-plus"></i> Добавить вариант ответа
                             </button>
-                        </div>
+                             </div>
                     </div>
                     
                     <div class="form-actions">
@@ -279,7 +277,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal-overlay" id="delete-confirm-modal">
         <div class="modal">
             <div class="modal-header">
@@ -295,8 +292,7 @@
             </div>
         </div>
     </div>
-
-    <div class="modal-overlay" id="add-subject-modal">
+  <div class="modal-overlay" id="add-subject-modal">
     <div class="modal">
         <div class="modal-header">
             <h3 class="modal-title">Добавление нового предмета</h3>
@@ -314,7 +310,7 @@
                     <button type="button" class="btn" id="cancel-subject-btn">Отмена</button>
                     <button type="submit" class="btn btn-primary">Добавить предмет</button>
                 </div>
-            </form>
+                 </form>
         </div>
     </div>
 </div>
