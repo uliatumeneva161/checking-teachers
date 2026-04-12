@@ -209,25 +209,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <script>
-        
-        function getTeacherBasePath() {
-    if (window.location.hostname.includes('github.io')) {
-        const repoName = window.location.pathname.split('/')[1];
-        return `/${repoName}/teacher/`;
-    }
-    return '';
-}
 
-function fixTeacherLinks() {
-    const basePath = getTeacherBasePath();
-    document.querySelectorAll('.nav-menu a[href$=".html"]').forEach(link => {
-        const href = link.getAttribute('href');
-        link.setAttribute('href', basePath + href);
-    });
-}
-document.addEventListener('DOMContentLoaded', fixTeacherLinks);
-    </script>
 </body>
 </html>
 

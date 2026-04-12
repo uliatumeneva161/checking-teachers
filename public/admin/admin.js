@@ -1,18 +1,10 @@
-// ==============================================
-// teacher.js - ЧИСТАЯ ВЕРСИЯ
-// ==============================================
-
-// Глобальные переменные для тестирования
 let currentTestId = null;
 let questions = [];
 let currentQuestionIndex = 0;
 let userAnswers = {};
 
-// ==============================================
-// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-// ==============================================
 
-// Функция для запросов к API
+// запросы к api
 async function api(url) {
     try {
         const response = await fetch(url);
@@ -24,7 +16,6 @@ async function api(url) {
     }
 }
 
-// Функция для установки текста в элемент
 function setText(elementId, text) {
     const element = document.getElementById(elementId);
     if (element) {
@@ -34,14 +25,9 @@ function setText(elementId, text) {
     }
 }
 
-// Уведомления
 function showNotification(message, type = 'success') {
-    alert(message); // Временно используем alert для простоты
+    alert(message);
 }
-
-// ==============================================
-// ПРОВЕРКА АВТОРИЗАЦИИ
-// ==============================================
 
 async function checkAuth() {
     try {
@@ -63,9 +49,6 @@ async function checkAuth() {
     }
 }
 
-// ==============================================
-// ЗАГРУЗКА ДАННЫХ УЧИТЕЛЯ
-// ==============================================
 
 async function loadTeacherData() {
     try {
@@ -90,22 +73,13 @@ async function loadTeacherData() {
     }
 }
 
-// ==============================================
-// СТРАНИЦА index.html
-// ==============================================
-
 async function loadDashboard() {
-    console.log('Загрузка дашборда...');
-    
-    // Статистика
     const stats = await api('../api/get_teacher_stats.php');
     if (stats) {
         setText('tests-count', stats.available || 0);
         setText('completed-tests', stats.completed || 0);
         setText('average-score', (stats.average || 0) + '%');
     }
-    
-    // Последние результаты
     const recent = await api('../api/get_recent_results.php');
     const container = document.getElementById('recent-tests-list');
     
@@ -125,10 +99,6 @@ async function loadDashboard() {
         }
     }
 }
-
-// ==============================================
-// СТРАНИЦА currTest.html
-// ==============================================
 
 async function loadTests() {
     console.log('Загрузка тестов...');
@@ -181,10 +151,6 @@ function initTabs() {
     });
 }
 
-// ==============================================
-// ПРОХОЖДЕНИЕ ТЕСТА
-// ==============================================
-
 async function startTest(testId) {
     console.log('Начало теста:', testId);
     
@@ -234,8 +200,6 @@ function renderQuestion() {
     
     container.innerHTML = html;
     setText('question-counter', `${currentQuestionIndex + 1} / ${questions.length}`);
-    
-    // Кнопки навигации
     const prevBtn = document.getElementById('prev-question');
     const nextBtn = document.getElementById('next-question');
     const finishBtn = document.getElementById('finish-test');
@@ -309,10 +273,6 @@ async function finishTest() {
     loadTests();
 }
 
-// ==============================================
-// СТРАНИЦА results.html
-// ==============================================
-
 async function loadResults() {
     console.log('Загрузка результатов...');
     
@@ -341,10 +301,6 @@ async function loadResults() {
     tbody.innerHTML = html;
 }
 
-// ==============================================
-// СТРАНИЦА profile.html
-// ==============================================
-
 async function loadProfile() {
     console.log('Загрузка профиля...');
     
@@ -364,30 +320,15 @@ async function loadProfile() {
     }
 }
 
-// ==============================================
-// ВЫХОД
-// ==============================================
-
 async function logoutTeacher() {
     await fetch('../api/logout_teacher.php');
     window.location.href = '../index.php';
 }
 
-// ==============================================
-// ИНИЦИАЛИЗАЦИЯ
-// ==============================================
-
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Страница загружена, проверяем авторизацию...');
-    
-    // Проверяем авторизацию
     const teacherData = await checkAuth();
     if (!teacherData) return;
-    
-    // Загружаем данные учителя
     await loadTeacherData();
-    
-    // Определяем текущую страницу
     const path = window.location.pathname;
     const page = path.split('/').pop();
     
@@ -404,8 +345,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     } else if (page === 'profile.html') {
         await loadProfile();
     }
-    
-    // Обработчик для модального окна
     const modal = document.getElementById('test-modal');
     if (modal) {
         const closeBtn = document.getElementById('close-test-modal');
@@ -425,15 +364,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (finishBtn) finishBtn.addEventListener('click', finishTest);
     }
     
-    // Обработчик для кнопок "Начать тест"
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('btn-start-test')) {
             const testId = e.target.dataset.id;
             startTest(testId);
         }
     });
-    
-    // Обработчик выхода
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function(e) {

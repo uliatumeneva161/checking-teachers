@@ -4,13 +4,12 @@ require_once '../../db/db.php';
 
 $stats = [];
 
-// Количество предметов
-$result = $conn->query("SELECT COUNT(*) as count FROM subjects");
+$result = $conn->query("SELECT COUNT(*) as count FROM subjects"); // Количество предметов
 $row = $result->fetch_assoc();
 $stats['subjects'] = $row['count'];
 
-// Количество учителей
-$result = $conn->query("SELECT COUNT(*) as count FROM teachers");
+
+$result = $conn->query("SELECT COUNT(*) as count FROM teachers");// Количество учителей
 $row = $result->fetch_assoc();
 $stats['teachers'] = $row['count'];
 $result = $conn->query("SELECT COUNT(*) as count FROM tests");
