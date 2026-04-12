@@ -2,7 +2,6 @@
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../db/db.php';
 
-// Получить статистику
 $stats = [];
 
 // Количество предметов

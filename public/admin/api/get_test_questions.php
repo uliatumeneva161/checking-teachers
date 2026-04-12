@@ -15,8 +15,6 @@ if (!empty($_GET['test_id'])) {
     $questions = [];
      while ($row = $result->fetch_assoc()) {
         $question_id = $row['id'];
-        
-        // Получаем варианты ответов для вопроса
         $optionsSql = "SELECT * FROM options WHERE question_id = $question_id";
         $optionsResult = $conn->query($optionsSql);
         $options = [];
@@ -46,7 +44,6 @@ admin/api/stats.php
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../db/db.php';
 
-// Получить статистику
 $stats = [];
 
 // Количество предметов
