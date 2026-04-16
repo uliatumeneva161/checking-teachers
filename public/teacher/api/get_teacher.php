@@ -1,15 +1,8 @@
 <?php
-// Включаем отображение ошибок ТОЛЬКО для отладки
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-// АБСОЛЮТНЫЙ путь к db.php
-require_once dirname(__DIR__) . '/db/db.php';
-
-// Проверка подключения к БД
+require_once '../../db/db.php'; 
 if (!$conn) {
     echo json_encode(['error' => 'Ошибка подключения к БД']);
     exit;

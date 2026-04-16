@@ -1,380 +1,400 @@
-let currentTestId = null;
-let questions = [];
-let currentQuestionIndex = 0;
-let userAnswers = {};
+// ========== API ФУНКЦИИ ==========
 
-
-// запросы к api
-async function api(url) {
+async function fetchSubjects() {
     try {
-        const response = await fetch(url);
-        if (!response.ok) return null;
+        const response = await fetch('api/subjects.php');
+        if (!response.ok) throw new Error('Ошибка загрузки');
         return await response.json();
     } catch (error) {
-        console.error('Ошибка API:', error);
-        return null;
+        console.error('Ошибка загрузки предметов:', error);
+        showNotification('Ошибка загрузки предметов', 'error');
+        return [];
     }
 }
 
-function setText(elementId, text) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.textContent = text;
-    } else {
-        console.log('Элемент не найден:', elementId);
+async function addSubject(name) {
+    const response = await fetch('api/subjects.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name })
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка добавления');
+    }
+    return await response.json();
+}
+
+async function deleteSubject(id) {
+    const response = await fetch('api/subjects.php', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id })
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка удаления');
+    }
+    return await response.json();
+}
+
+async function fetchTeachers() {
+    try {
+        const response = await fetch('api/teachers.php');
+        if (!response.ok) throw new Error('Ошибка загрузки');
+        return await response.json();
+    } catch (error) {
+        console.error('Ошибка загрузки учителей:', error);
+        return [];
     }
 }
 
-function showNotification(message, type = 'success') {
+async function addTeacher(data) {
+    const response = await fetch('api/teachers.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка добавления');
+    }
+    return await response.json();
+}
+
+async function deleteTeacher(id) {
+    const response = await fetch('api/teachers.php', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id })
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка удаления');
+    }
+    return await response.json();
+}
+
+async function fetchTests() {
+    try {
+        const response = await fetch('api/tests.php');
+        if (!response.ok) throw new Error('Ошибка загрузки');
+        return await response.json();
+    } catch (error) {
+        console.error('Ошибка загрузки тестов:', error);
+        return [];
+    }
+}
+
+async function addTest(testData) {
+    const response = await fetch('api/tests.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(testData)
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка создания');
+    }
+    return await response.json();
+}
+
+async function deleteTest(id) {
+    const response = await fetch('api/tests.php', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id })
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка удаления');
+    }
+    return await response.json();
+}
+
+async function fetchStats() {
+    try {
+        const response = await fetch('api/stats.php');
+        if (!response.ok) throw new Error('Ошибка загрузки');
+        return await response.json();
+    } catch (error) {
+        console.error('Ошибка загрузки статистики:', error);
+        return { subjects: 0, teachers: 0, tests: 0 };
+    }
+}
+
+// ========== ЗАГРУЗКА ТАБЛИЦ ==========
+
+async function loadSubjectsTable() {
+    const tbody = document.getElementById('subjects-table-body');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '<tr><td colspan="5">Загрузка...</td></tr>';
+    const subjects = await fetchSubjects();
+    
+    if (subjects.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">Нет предметов</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = '';
+    subjects.forEach(subject => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td>${subject.id}</td>
+            <td>${subject.name}</td>
+            <td>${subject.teacher_count || 0}</td>
+            <td>${subject.test_count || 0}</td>
+            <td><button class="btn btn-sm btn-danger delete-subject" data-id="${subject.id}" data-name="${subject.name}">Удалить</button></td>
+        `;
+    });
+}
+
+async function loadTeachersTable() {
+    const tbody = document.getElementById('teachers-table-body');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '<tr><td colspan="6">Загрузка...</td></tr>';
+    const teachers = await fetchTeachers();
+    
+    if (teachers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6">Нет учителей</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = '';
+    teachers.forEach(teacher => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td>${teacher.id}</td>
+            <td>${teacher.full_name}</td>
+            <td>${teacher.login}</td>
+            <td>••••••</td>
+            <td>${teacher.subject_name || 'Не указан'}</td>
+            <td><button class="btn btn-sm btn-danger delete-teacher" data-id="${teacher.id}" data-name="${teacher.full_name}">Удалить</button></td>
+        `;
+    });
+}
+
+async function loadTestsTable() {
+    const tbody = document.getElementById('tests-table-body');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '<tr><td colspan="6">Загрузка...</td></tr>';
+    const tests = await fetchTests();
+    
+    if (tests.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6">Нет тестов</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = '';
+    tests.forEach(test => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td>${test.id}</td>
+            <td>${test.name}</td>
+            <td>${test.subject_name || 'Не указан'}</td>
+            <td>${test.question_count || 0}</td>
+            <td>${test.created_date || test.created_at || ''}</td>
+            <td><button class="btn btn-sm btn-danger delete-test" data-id="${test.id}" data-name="${test.name}">Удалить</button></td>
+        `;
+    });
+}
+
+async function updateStats() {
+    const stats = await fetchStats();
+    const teachersCount = document.getElementById('teachers-count');
+    const subjectsCount = document.getElementById('subjects-count');
+    const testsCount = document.getElementById('tests-count');
+    
+    if (teachersCount) teachersCount.textContent = stats.teachers || 0;
+    if (subjectsCount) subjectsCount.textContent = stats.subjects || 0;
+    if (testsCount) testsCount.textContent = stats.tests || 0;
+}
+
+// ========== ОБРАБОТЧИКИ ФОРМ ==========
+
+async function populateSubjectDropdowns() {
+    const subjects = await fetchSubjects();
+    
+    const teacherSelect = document.getElementById('teacher-subject');
+    if (teacherSelect) {
+        teacherSelect.innerHTML = '<option value="">Выберите предмет</option>';
+        subjects.forEach(s => {
+            teacherSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+        });
+    }
+    
+    const testSelect = document.getElementById('test-subject');
+    if (testSelect) {
+        testSelect.innerHTML = '<option value="">Выберите предмет</option>';
+        subjects.forEach(s => {
+            testSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+        });
+    }
+}
+
+document.getElementById('subject-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('subject-name').value;
+    if (!name.trim()) {
+        showNotification('Введите название предмета', 'error');
+        return;
+    }
+    try {
+        await addSubject(name);
+        showNotification('Предмет добавлен', 'success');
+        document.getElementById('add-subject-modal').classList.remove('active');
+        document.getElementById('subject-form').reset();
+        await loadSubjectsTable();
+        await updateStats();
+        await populateSubjectDropdowns();
+    } catch (err) {
+        showNotification(err.message, 'error');
+    }
+});
+
+document.getElementById('teacher-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const full_name = document.getElementById('teacher-full-name').value;
+    const login = document.getElementById('teacher-login').value;
+    const password = document.getElementById('teacher-password').value;
+    const subject_id = document.getElementById('teacher-subject').value;
+    
+    if (!full_name || !login || !password) {
+        showNotification('Заполните все поля', 'error');
+        return;
+    }
+    try {
+        await addTeacher({ full_name, login, password, subject_id: subject_id || null });
+        showNotification('Учитель добавлен', 'success');
+        document.getElementById('add-teacher-modal').classList.remove('active');
+        document.getElementById('teacher-form').reset();
+        await loadTeachersTable();
+        await updateStats();
+    } catch (err) {
+        showNotification(err.message, 'error');
+    }
+});
+
+
+document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.delete-subject');
+    if (btn) {
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+        if (confirm(`Удалить предмет "${name}"?`)) {
+            try {
+                await deleteSubject(id);
+                showNotification('Предмет удалён', 'success');
+                await loadSubjectsTable();
+                await updateStats();
+                await populateSubjectDropdowns();
+            } catch (err) {
+                showNotification(err.message, 'error');
+            }
+        }
+    }
+    
+    const teacherBtn = e.target.closest('.delete-teacher');
+    if (teacherBtn) {
+        const id = teacherBtn.dataset.id;
+        const name = teacherBtn.dataset.name;
+        if (confirm(`Удалить учителя "${name}"?`)) {
+            try {
+                await deleteTeacher(id);
+                showNotification('Учитель удалён', 'success');
+                await loadTeachersTable();
+                await updateStats();
+            } catch (err) {
+                showNotification(err.message, 'error');
+            }
+        }
+    }
+    
+    const testBtn = e.target.closest('.delete-test');
+    if (testBtn) {
+        const id = testBtn.dataset.id;
+        const name = testBtn.dataset.name;
+        if (confirm(`Удалить тест "${name}"?`)) {
+            try {
+                await deleteTest(id);
+                showNotification('Тест удалён', 'success');
+                await loadTestsTable();
+                await updateStats();
+            } catch (err) {
+                showNotification(err.message, 'error');
+            }
+        }
+    }
+});
+
+// ========== ВКЛАДКИ ==========
+
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const href = link.getAttribute('href');
+        if (href && href !== '#') {
+            window.location.href = href;
+        }
+    });
+});
+
+function showNotification(message, type) {
     alert(message);
 }
 
-async function checkAuth() {
-    try {
-        const response = await fetch('../api/get_teacher.php');
-        const data = await response.json();
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const currentPage = window.location.pathname.split('/').pop();
+    
+    if (currentPage === 'admin.html' || currentPage === '') {
+        await updateStats();
+        await loadTeachersTable();
+        await loadSubjectsTable();
+        await loadTestsTable();
+        await populateSubjectDropdowns();
         
-        console.log('checkAuth ответ:', data);
-        
-        if (!data || !data.logged) {
-            window.location.href = 'teach-login.php';
-            return false;
+        const currentDate = document.getElementById('current-date');
+        if (currentDate) {
+            const now = new Date();
+            currentDate.textContent = now.toLocaleDateString('ru-RU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }
+    } else if (currentPage === 'subjects.html') {
+        await loadSubjectsTable();
+        await populateSubjectDropdowns();
+    } else if (currentPage === 'teachers.html') {
+        await loadTeachersTable();
+        await populateSubjectDropdowns();
+    } else if (currentPage === 'tests.html') {
+        await loadTestsTable();
+        await populateSubjectDropdowns();
+    }
+    
+    // Модальные окна
+    const modals = ['add-subject-modal', 'add-teacher-modal', 'add-test-modal', 'delete-confirm-modal'];
+    modals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
         
-        return data;
-    } catch (error) {
-        console.error('Ошибка проверки авторизации:', error);
-        window.location.href = 'teach-login.php';
-        return false;
-    }
-}
-
-
-async function loadTeacherData() {
-    try {
-        const response = await fetch('../api/get_teacher.php');
-        const data = await response.json();
-        
-        console.log('Данные учителя:', data);
-        
-        if (data && data.logged) {
-            // Устанавливаем имя и предмет во всех возможных местах
-            setText('teacher-name', data.name || 'Учитель');
-            setText('teacher-subject', data.subject || 'Предмет');
-            setText('welcome-name', data.name || '');
-            setText('dashboard-subject', data.subject || '');
-            setText('tests-subject', data.subject || '');
-            setText('profile-name', data.name || '');
-            setText('profile-subject', data.subject || '');
-            setText('profile-login', data.login || '');
-        }
-    } catch (error) {
-        console.error('Ошибка загрузки данных учителя:', error);
-    }
-}
-
-async function loadDashboard() {
-    const stats = await api('../api/get_teacher_stats.php');
-    if (stats) {
-        setText('tests-count', stats.available || 0);
-        setText('completed-tests', stats.completed || 0);
-        setText('average-score', (stats.average || 0) + '%');
-    }
-    const recent = await api('../api/get_recent_results.php');
-    const container = document.getElementById('recent-tests-list');
-    
-    if (container) {
-        if (!recent || recent.length === 0) {
-            container.innerHTML = '<tr><td colspan="3">Нет результатов</td></tr>';
-        } else {
-            let html = '';
-            recent.forEach(r => {
-                html += `<tr>
-                    <td>${r.test_name || 'Тест'}</td>
-                    <td>${r.date || '—'}</td>
-                    <td>${r.score || 0}%</td>
-                </tr>`;
-            });
-            container.innerHTML = html;
-        }
-    }
-}
-
-async function loadTests() {
-    console.log('Загрузка тестов...');
-    
-    const tests = await api('../api/get_teacher_tests.php');
-    const availableGrid = document.getElementById('tests-available-grid');
-    const allGrid = document.getElementById('tests-all-grid');
-    
-    if (!availableGrid || !allGrid) return;
-    
-    if (!tests || tests.length === 0) {
-        availableGrid.innerHTML = '<p>Нет доступных тестов</p>';
-        allGrid.innerHTML = '<p>Нет доступных тестов</p>';
-        return;
-    }
-    
-    availableGrid.innerHTML = '';
-    allGrid.innerHTML = '';
-    
-    tests.forEach(test => {
-        const card = document.createElement('div');
-        card.className = 'test-card';
-        card.innerHTML = `
-            <h3>${test.name}</h3>
-            <p>Вопросов: ${test.question_count}</p>
-            <button class="btn-start-test" data-id="${test.id}">
-                ${test.completed ? 'Пройти заново' : 'Начать тест'}
-            </button>
-        `;
-        availableGrid.appendChild(card.cloneNode(true));
-        allGrid.appendChild(card);
-    });
-}
-
-function initTabs() {
-    const tabs = document.querySelectorAll('.category-tab');
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            tabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            const category = this.dataset.category;
-            document.querySelectorAll('.category-content').forEach(c => {
-                c.classList.remove('active');
-            });
-            
-            const target = document.getElementById('category-' + category);
-            if (target) target.classList.add('active');
-        });
-    });
-}
-
-async function startTest(testId) {
-    console.log('Начало теста:', testId);
-    
-    try {
-        const response = await fetch(`../api/get_test_questions.php?test_id=${testId}`);
-        questions = await response.json();
-        
-        if (!questions || questions.length === 0) {
-            alert('Тест не содержит вопросов');
-            return;
-        }
-        
-        currentTestId = testId;
-        currentQuestionIndex = 0;
-        userAnswers = {};
-        
-        setText('test-questions-count', questions.length);
-        document.getElementById('test-modal').classList.add('active');
-        renderQuestion();
-    } catch (error) {
-        alert('Ошибка загрузки теста');
-    }
-}
-
-function renderQuestion() {
-    if (!questions.length) return;
-    
-    const q = questions[currentQuestionIndex];
-    const container = document.getElementById('question-container');
-    
-    if (!container) return;
-    
-    let html = `<h4>Вопрос ${currentQuestionIndex + 1} из ${questions.length}</h4>`;
-    html += `<p>${q.question_text}</p>`;
-    
-    q.options.forEach(opt => {
-        const checked = userAnswers[q.id] == opt.id ? 'checked' : '';
-        html += `
-            <div>
-                <label>
-                    <input type="radio" name="answer" value="${opt.id}" ${checked}>
-                    ${opt.text}
-                </label>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
-    setText('question-counter', `${currentQuestionIndex + 1} / ${questions.length}`);
-    const prevBtn = document.getElementById('prev-question');
-    const nextBtn = document.getElementById('next-question');
-    const finishBtn = document.getElementById('finish-test');
-    
-    if (prevBtn) prevBtn.disabled = currentQuestionIndex === 0;
-    
-    if (currentQuestionIndex === questions.length - 1) {
-        if (nextBtn) nextBtn.style.display = 'none';
-        if (finishBtn) finishBtn.style.display = 'inline-block';
-    } else {
-        if (nextBtn) nextBtn.style.display = 'inline-block';
-        if (finishBtn) finishBtn.style.display = 'none';
-    }
-}
-
-function nextQuestion() {
-    saveAnswer();
-    if (currentQuestionIndex < questions.length - 1) {
-        currentQuestionIndex++;
-        renderQuestion();
-    }
-}
-
-function prevQuestion() {
-    saveAnswer();
-    if (currentQuestionIndex > 0) {
-        currentQuestionIndex--;
-        renderQuestion();
-    }
-}
-
-function saveAnswer() {
-    const selected = document.querySelector('input[name="answer"]:checked');
-    if (selected) {
-        const questionId = questions[currentQuestionIndex].id;
-        userAnswers[questionId] = parseInt(selected.value);
-    }
-}
-
-async function finishTest() {
-    saveAnswer();
-    
-    let correct = 0;
-    questions.forEach(q => {
-        const selectedId = userAnswers[q.id];
-        const correctOption = q.options.find(opt => opt.isCorrect);
-        if (correctOption && selectedId === correctOption.id) {
-            correct++;
-        }
-    });
-    
-    const total = questions.length;
-    
-    try {
-        await fetch('../api/save_result.php', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                test_id: currentTestId,
-                correct: correct,
-                total: total
-            })
-        });
-        
-        alert(`Тест завершён! Правильных ответов: ${correct} из ${total}`);
-    } catch (error) {
-        alert('Ошибка сохранения результата');
-    }
-    
-    document.getElementById('test-modal').classList.remove('active');
-    loadTests();
-}
-
-async function loadResults() {
-    console.log('Загрузка результатов...');
-    
-    const results = await api('../api/get_teacher_results.php');
-    const tbody = document.getElementById('results-table-body');
-    
-    if (!tbody) return;
-    
-    if (!results || results.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7">Нет результатов</td></tr>';
-        return;
-    }
-    
-    let html = '';
-    results.forEach(r => {
-        html += `<tr>
-            <td>${r.test_name}</td>
-            <td>${r.subject_name || '—'}</td>
-            <td>${r.completed_at || '—'}</td>
-            <td>${r.correct_answers}/${r.total_questions}</td>
-            <td>${r.score}%</td>
-            <td>${r.score >= 80 ? 'Отлично' : r.score >= 60 ? 'Хорошо' : 'Удовл.'}</td>
-            <td><button>👁️</button></td>
-        </tr>`;
-    });
-    tbody.innerHTML = html;
-}
-
-async function loadProfile() {
-    console.log('Загрузка профиля...');
-    
-    const profile = await api('../api/get_teacher_profile.php');
-    if (!profile) return;
-    
-    setText('profile-name', profile.name || '');
-    setText('profile-login', profile.login || '');
-    setText('profile-subject', profile.subject || 'Не указан');
-    setText('profile-date', profile.registered || '—');
-    
-    if (profile.stats) {
-        setText('total-tests', profile.stats.total_tests || 0);
-        setText('passed-tests', profile.stats.completed_tests || 0);
-        setText('best-result', (profile.stats.best_score || 0) + '%');
-        setText('avg-time', (profile.stats.average_score || 0) + '%');
-    }
-}
-
-async function logoutTeacher() {
-    await fetch('../api/logout_teacher.php');
-    window.location.href = '../index.php';
-}
-
-document.addEventListener('DOMContentLoaded', async function() {
-    const teacherData = await checkAuth();
-    if (!teacherData) return;
-    await loadTeacherData();
-    const path = window.location.pathname;
-    const page = path.split('/').pop();
-    
-    console.log('Текущая страница:', page);
-    
-    // Загружаем соответствующий контент
-    if (page === 'index.html' || page === '') {
-        await loadDashboard();
-    } else if (page === 'currTest.html') {
-        await loadTests();
-        initTabs();
-    } else if (page === 'results.html') {
-        await loadResults();
-    } else if (page === 'profile.html') {
-        await loadProfile();
-    }
-    const modal = document.getElementById('test-modal');
-    if (modal) {
-        const closeBtn = document.getElementById('close-test-modal');
+        const closeBtn = modal.querySelector('.modal-close');
         if (closeBtn) {
-            closeBtn.addEventListener('click', function() {
-                modal.classList.remove('active');
-            });
-        }
-        
-        const prevBtn = document.getElementById('prev-question');
-        if (prevBtn) prevBtn.addEventListener('click', prevQuestion);
-        
-        const nextBtn = document.getElementById('next-question');
-        if (nextBtn) nextBtn.addEventListener('click', nextQuestion);
-        
-        const finishBtn = document.getElementById('finish-test');
-        if (finishBtn) finishBtn.addEventListener('click', finishTest);
-    }
-    
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('btn-start-test')) {
-            const testId = e.target.dataset.id;
-            startTest(testId);
+            closeBtn.addEventListener('click', () => modal.classList.remove('active'));
         }
     });
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            logoutTeacher();
-        });
-    }
+    
+    document.getElementById('add-subject-btn')?.addEventListener('click', () => {
+        document.getElementById('add-subject-modal')?.classList.add('active');
+    });
+    
+    document.getElementById('add-teacher-btn')?.addEventListener('click', () => {
+        document.getElementById('add-teacher-modal')?.classList.add('active');
+    });
+    
+    document.getElementById('add-test-btn')?.addEventListener('click', () => {
+        document.getElementById('add-test-modal')?.classList.add('active');
+    });
 });

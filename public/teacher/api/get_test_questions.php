@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
-require_once '../db/db.php';
+require_once '../../db.php';
 
 if (!empty($_GET['test_id'])) {
     $test_id = intval($_GET['test_id']);

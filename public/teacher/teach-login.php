@@ -1,8 +1,6 @@
 <?php
-// Запускаем сессию САМОЙ ПЕРВОЙ строкой, до любого HTML
-session_start();
 
-// Обработка POST запроса до HTML
+session_start();
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require('../db/db.php');

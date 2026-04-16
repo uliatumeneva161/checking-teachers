@@ -5,7 +5,7 @@ ini_set('display_errors', 1);
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-require_once dirname(__DIR__) . '/db/db.php';
+require_once '../../db.php';
 
 if (!isset($_SESSION['teacher_id'])) {
     echo json_encode(['error' => 'Не авторизован']);

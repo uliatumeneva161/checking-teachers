@@ -29,7 +29,7 @@ function showNotification(message, type = 'success') {
 
 async function checkAuth() {
     try {
-        const response = await fetch('../api/get_teacher.php');
+        const response = await fetch('api/get_teacher.php');
         const data = await response.json();
         
         console.log('checkAuth ответ:', data);
@@ -46,9 +46,10 @@ async function checkAuth() {
         return false;
     }
 }
+
 async function loadTeacherData() {
     try {
-        const response = await fetch('../api/get_teacher.php');
+        const response = await fetch('api/get_teacher.php');
         const data = await response.json();
         
         console.log('Данные учителя:', data);
@@ -67,15 +68,16 @@ async function loadTeacherData() {
         console.error('Ошибка загрузки данных учителя:', error);
     }
 }
+
 async function loadDashboard() {
-    const stats = await api('../api/get_teacher_stats.php');
+    const stats = await api('api/get_teacher_stats.php');
     if (stats) {
         setText('tests-count', stats.available || 0);
         setText('completed-tests', stats.completed || 0);
         setText('average-score', (stats.average || 0) + '%');
     }
     
-    const recent = await api('../api/get_recent_results.php');
+    const recent = await api('api/get_recent_results.php');
     const container = document.getElementById('recent-tests-list');
     
     if (container) {
@@ -95,11 +97,10 @@ async function loadDashboard() {
     }
 }
 
-// currTest.html
 async function loadTests() {
     console.log('Загрузка тестов...');
     
-    const tests = await api('../api/get_teacher_tests.php');
+    const tests = await api('api/get_teacher_tests.php');
     const availableGrid = document.getElementById('tests-available-grid');
     const allGrid = document.getElementById('tests-all-grid');
     
@@ -151,7 +152,7 @@ async function startTest(testId) {
     console.log('Начало теста:', testId);
     
     try {
-        const response = await fetch(`../api/get_test_questions.php?test_id=${testId}`);
+        const response = await fetch(`api/get_test_questions.php?test_id=${testId}`);
         questions = await response.json();
         
         if (!questions || questions.length === 0) {
@@ -250,7 +251,7 @@ async function finishTest() {
     const total = questions.length;
     
     try {
-        await fetch('../api/save_result.php', {
+        await fetch('api/save_result.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -269,11 +270,10 @@ async function finishTest() {
     loadTests();
 }
 
-// results.html
 async function loadResults() {
     console.log('Загрузка результатов...');
     
-    const results = await api('../api/get_teacher_results.php');
+    const results = await api('api/get_teacher_results.php');
     const tbody = document.getElementById('results-table-body');
     
     if (!tbody) return;
@@ -298,12 +298,10 @@ async function loadResults() {
     tbody.innerHTML = html;
 }
 
-
-// profile.html
 async function loadProfile() {
     console.log('Загрузка профиля...');
     
-    const profile = await api('../api/get_teacher_profile.php');
+    const profile = await api('api/get_teacher_profile.php');
     if (!profile) return;
     
     setText('profile-name', profile.name || '');
@@ -318,10 +316,12 @@ async function loadProfile() {
         setText('avg-time', (profile.stats.average_score || 0) + '%');
     }
 }
+
 async function logoutTeacher() {
-    await fetch('../api/logout_teacher.php');
+    await fetch('api/logout_teacher.php');
     window.location.href = '../index.php';
 }
+
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Страница загружена, проверяем авторизацию...');
     const teacherData = await checkAuth();
@@ -329,6 +329,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadTeacherData();
     const path = window.location.pathname;
     const page = path.split('/').pop();
+    
     if (page === 'index.html' || page === '') {
         await loadDashboard();
     } else if (page === 'currTest.html') {
