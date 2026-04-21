@@ -14,7 +14,6 @@ if (!isset($_SESSION['teacher_id'])) {
 
 $teacher_id = (int)$_SESSION['teacher_id'];
 
-// Получаем предмет учителя
 $teacherRes = $conn->query("SELECT subject_id FROM teachers WHERE id = $teacher_id");
 $teacher = $teacherRes->fetch_assoc();
 $subject_id = $teacher['subject_id'];

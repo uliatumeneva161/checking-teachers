@@ -14,7 +14,6 @@ if (!isset($_SESSION['teacher_id'])) {
 
 $teacher_id = (int)$_SESSION['teacher_id'];
 
-// Данные учителя
 $teacherSql = "SELECT t.id, t.full_name as name, t.login, 
                       t.subject_id, s.name as subject,
                       DATE_FORMAT(t.created_at, '%d.%m.%Y') as registered

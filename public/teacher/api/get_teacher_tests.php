@@ -14,7 +14,6 @@ if (!isset($_SESSION['teacher_id'])) {
 
 $teacher_id = (int)$_SESSION['teacher_id'];
 
-// Получаем предмет учителя
 $teacherRes = $conn->query("SELECT subject_id FROM teachers WHERE id = $teacher_id");
 if (!$teacherRes || $teacherRes->num_rows == 0) {
     echo json_encode([]);
@@ -28,7 +27,6 @@ if (!$subject_id) {
     exit;
 }
 
-// Получаем тесты по предмету
 $testsSql = "SELECT id, name, question_count 
              FROM tests 
              WHERE subject_id = $subject_id 
@@ -37,7 +35,7 @@ $testsRes = $conn->query($testsSql);
 
 $tests = [];
 while ($test = $testsRes->fetch_assoc()) {
-    // Проверяем, проходил ли учитель этот тест
+    
     $resultSql = "SELECT id FROM test_results 
                   WHERE teacher_id = $teacher_id AND test_id = " . $test['id'];
     $resultRes = $conn->query($resultSql);

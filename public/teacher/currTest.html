@@ -111,8 +111,6 @@
                 </div>
                 <p id="test-description"></p>
             </div>
-
-            <!-- Добавленные элементы для вопросов -->
             <div class="test-progress">
                 <div class="question-counter" id="question-counter">1 / 10</div>
             </div>
@@ -129,7 +127,6 @@
 <script src="teacher.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Дополнительно: отображение предмета в заголовке
         const teacherSubject = document.getElementById('teacher-subject')?.textContent;
         if (teacherSubject) {
             document.getElementById('tests-subject').textContent = teacherSubject;

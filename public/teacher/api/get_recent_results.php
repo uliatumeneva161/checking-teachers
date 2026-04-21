@@ -14,7 +14,6 @@ if (!isset($_SESSION['teacher_id'])) {
 
 $teacher_id = (int)$_SESSION['teacher_id'];
 
-// Используем created_at вместо completed_at
 $sql = "SELECT r.id, t.name as test_name, r.score,
                DATE_FORMAT(r.created_at, '%d.%m.%Y') as date
         FROM test_results r

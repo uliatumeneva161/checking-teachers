@@ -102,17 +102,20 @@ async function loadTests() {
     
     const tests = await api('api/get_teacher_tests.php');
     const availableGrid = document.getElementById('tests-available-grid');
+    const completedGrid = document.getElementById('tests-completed-grid');
     const allGrid = document.getElementById('tests-all-grid');
     
-    if (!availableGrid || !allGrid) return;
+    if (!availableGrid || !completedGrid || !allGrid) return;
     
     if (!tests || tests.length === 0) {
         availableGrid.innerHTML = '<p>Нет доступных тестов</p>';
-        allGrid.innerHTML = '<p>Нет доступных тестов</p>';
+        completedGrid.innerHTML = '<p>Нет пройденных тестов</p>';
+        allGrid.innerHTML = '<p>Нет тестов</p>';
         return;
     }
     
     availableGrid.innerHTML = '';
+    completedGrid.innerHTML = '';
     allGrid.innerHTML = '';
     
     tests.forEach(test => {
@@ -125,11 +128,18 @@ async function loadTests() {
                 ${test.completed ? 'Пройти заново' : 'Начать тест'}
             </button>
         `;
-        availableGrid.appendChild(card.cloneNode(true));
-        allGrid.appendChild(card);
+        
+        allGrid.appendChild(card.cloneNode(true));
+        
+        if (!test.completed) {
+            availableGrid.appendChild(card.cloneNode(true));
+        }
+    
+        if (test.completed) {
+            completedGrid.appendChild(card.cloneNode(true));
+        }
     });
 }
-
 function initTabs() {
     const tabs = document.querySelectorAll('.category-tab');
     tabs.forEach(tab => {
@@ -244,29 +254,28 @@ function saveAnswer() {
 }
 
 async function finishTest() {
-    // Сохраняем ответ на текущий вопрос
     saveAnswer();
     
-    // Подсчитываем правильные ответы
     let correct = 0;
     const total = questions.length;
     
     for (let q of questions) {
-        const selectedIds = userAnswers[q.id] || [];
-        const correctOptionIds = q.options.filter(opt => opt.isCorrect === true).map(opt => opt.id);
+        let selectedIds = userAnswers[q.id] || [];
+        let correctOptionIds = q.options
+            .filter(opt => opt.isCorrect == 1 || opt.isCorrect === true)
+            .map(opt => Number(opt.id));
+        
+        selectedIds = selectedIds.map(id => Number(id));
+        selectedIds.sort((a, b) => a - b);
+        correctOptionIds.sort((a, b) => a - b);
         
         const isCorrect = selectedIds.length === correctOptionIds.length &&
-                          selectedIds.every(id => correctOptionIds.includes(id));
+                          selectedIds.every((id, index) => id === correctOptionIds[index]);
         
         if (isCorrect) {
             correct++;
         }
     }
-    
-    console.log('=== ОТПРАВКА РЕЗУЛЬТАТА ===');
-    console.log('test_id:', currentTestId);
-    console.log('correct:', correct);
-    console.log('total:', total);
     
     try {
         const response = await fetch('api/save_result.php', {
@@ -280,7 +289,6 @@ async function finishTest() {
         });
         
         const result = await response.json();
-        console.log('Ответ сервера:', result);
         
         if (result.success) {
             const percent = Math.round(correct / total * 100);
@@ -306,7 +314,7 @@ async function loadResults() {
     if (!tbody) return;
     
     if (!results || results.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7">Нет результатов</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6">Нет результатов</td></tr>';
         return;
     }
     
@@ -318,8 +326,7 @@ async function loadResults() {
             <td>${r.completed_at || '—'}</td>
             <td>${r.correct_answers}/${r.total_questions}</td>
             <td>${r.score}%</td>
-            <td>${r.score >= 80 ? 'Отлично' : r.score >= 60 ? 'Хорошо' : 'Удовл.'}</td>
-            <td><button>👁️</button></td>
+            <td>${r.score >= 80 ? 'Отлично' : r.score >= 60 ? 'Хорошо' : 'Ужасно'}</td>
         </tr>`;
     });
     tbody.innerHTML = html;
