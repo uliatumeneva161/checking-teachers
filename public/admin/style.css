@@ -397,31 +397,43 @@ a{
             margin-top: 15px;
         }
 
-        .option-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: white;
-            border-radius: 6px;
-            border: 1px solid var(--light-gray);
-        }
 
-        .option-item.correct {
-            border-color: var(--success-color);
-            background-color: rgba(76, 201, 240, 0.1);
-        }
+        /* Подсветка выбранных правильных ответов */
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+}
 
-        .correct-badge {
-            background-color: var(--success-color);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-left: auto;
-        }
+.option-item.correct-highlight {
+    background-color: #d4edda;
+    border-left: 4px solid #28a745;
+}
+
+.correct-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #b3d1ba;
+}
+
+.correct-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background-color: #e9ecef;
+    color: #6c757d;
+}
+
+.option-item.correct-highlight .correct-badge {
+    background-color: #c0d7c6;
+    color: white;
+}
         .stats-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

@@ -168,6 +168,7 @@ async function startTest(testId) {
         document.getElementById('test-modal').classList.add('active');
         renderQuestion();
     } catch (error) {
+        console.error('Ошибка загрузки теста:', error);
         alert('Ошибка загрузки теста');
     }
 }
@@ -184,11 +185,13 @@ function renderQuestion() {
     html += `<p>${q.question_text}</p>`;
     
     q.options.forEach(opt => {
-        const checked = userAnswers[q.id] == opt.id ? 'checked' : '';
+        const isChecked = userAnswers[q.id] && userAnswers[q.id].includes(opt.id);
+        const checkedAttr = isChecked ? 'checked' : '';
+        
         html += `
-            <div>
+            <div class="option-item">
                 <label>
-                    <input type="radio" name="answer" value="${opt.id}" ${checked}>
+                    <input type="checkbox" name="answer" value="${opt.id}" ${checkedAttr}>
                     ${opt.text}
                 </label>
             </div>
@@ -197,6 +200,7 @@ function renderQuestion() {
     
     container.innerHTML = html;
     setText('question-counter', `${currentQuestionIndex + 1} / ${questions.length}`);
+    
     const prevBtn = document.getElementById('prev-question');
     const nextBtn = document.getElementById('next-question');
     const finishBtn = document.getElementById('finish-test');
@@ -229,29 +233,43 @@ function prevQuestion() {
 }
 
 function saveAnswer() {
-    const selected = document.querySelector('input[name="answer"]:checked');
-    if (selected) {
-        const questionId = questions[currentQuestionIndex].id;
-        userAnswers[questionId] = parseInt(selected.value);
+    const questionId = questions[currentQuestionIndex].id;
+    const selectedCheckboxes = document.querySelectorAll('input[name="answer"]:checked');
+    
+    if (selectedCheckboxes.length > 0) {
+        userAnswers[questionId] = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+    } else {
+        userAnswers[questionId] = [];
     }
 }
 
 async function finishTest() {
+    // Сохраняем ответ на текущий вопрос
     saveAnswer();
     
+    // Подсчитываем правильные ответы
     let correct = 0;
-    questions.forEach(q => {
-        const selectedId = userAnswers[q.id];
-        const correctOption = q.options.find(opt => opt.isCorrect);
-        if (correctOption && selectedId === correctOption.id) {
-            correct++;
-        }
-    });
-    
     const total = questions.length;
     
+    for (let q of questions) {
+        const selectedIds = userAnswers[q.id] || [];
+        const correctOptionIds = q.options.filter(opt => opt.isCorrect === true).map(opt => opt.id);
+        
+        const isCorrect = selectedIds.length === correctOptionIds.length &&
+                          selectedIds.every(id => correctOptionIds.includes(id));
+        
+        if (isCorrect) {
+            correct++;
+        }
+    }
+    
+    console.log('=== ОТПРАВКА РЕЗУЛЬТАТА ===');
+    console.log('test_id:', currentTestId);
+    console.log('correct:', correct);
+    console.log('total:', total);
+    
     try {
-        await fetch('api/save_result.php', {
+        const response = await fetch('api/save_result.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -261,8 +279,17 @@ async function finishTest() {
             })
         });
         
-        alert(`Тест завершён! Правильных ответов: ${correct} из ${total}`);
+        const result = await response.json();
+        console.log('Ответ сервера:', result);
+        
+        if (result.success) {
+            const percent = Math.round(correct / total * 100);
+            alert(`Тест завершён! Правильных ответов: ${correct} из ${total} (${percent}%)`);
+        } else {
+            alert('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+        }
     } catch (error) {
+        console.error('Ошибка сохранения результата:', error);
         alert('Ошибка сохранения результата');
     }
     

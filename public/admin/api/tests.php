@@ -21,78 +21,57 @@ switch ($method) {
         echo json_encode($tests);
         break;
         
+    
     case 'POST':
-        // Добавить новый тест с вопросами
-        $data = json_decode(file_get_contents('php://input'), true);
-        
-        if (!empty($data['name']) && !empty($data['subject_id']) && !empty($data['questions'])) {
-            $conn->begin_transaction();
-            
-            try {
-                $name = $conn->real_escape_string(trim($data['name']));
-                $subject_id = intval($data['subject_id']);
-                $question_count = count($data['questions']);
-                
-                // Добавляем тест
-                 $sql = "INSERT INTO tests (name, subject_id, question_count) 
-                        VALUES ('$name', $subject_id, $question_count)";
-                
-                if (!$conn->query($sql)) {
-                    throw new Exception('Ошибка при добавлении теста: ' . $conn->error);
-                }
-                
-                $test_id = $conn->insert_id;
-                
-                // Добавляем вопросы и варианты ответов
-                foreach ($data['questions'] as $questionIndex => $question) {
-                    $question_text = $conn->real_escape_string(trim($question['text']));
-                    $question_order = $questionIndex + 1;
-                    
-                    $sql = "INSERT INTO questions (test_id, question_text, question_order) 
-                            VALUES ($test_id, '$question_text', $question_order)";
-                    
-                    if (!$conn->query($sql)) {
-                        throw new Exception('Ошибка при добавлении вопроса: ' . $conn->error);
-                          }
-                    
-                    $question_id = $conn->insert_id;
-                    
-                    // Добавляем варианты ответов
-                    foreach ($question['options'] as $optionIndex => $option) {
-                        $option_text = $conn->real_escape_string(trim($option['text']));
-                        $is_correct = $option['isCorrect'] ? 1 : 0;
-                        
-                        $sql = "INSERT INTO options (question_id, option_text, is_correct) 
-                                VALUES ($question_id, '$option_text', $is_correct)";
-                        
-                        if (!$conn->query($sql)) {
-                            throw new Exception('Ошибка при добавлении варианта ответа: ' . $conn->error);
-                        }
-                    }
-                }
-                
-                $conn->commit();
-                // Получаем данные нового теста
-                $getSql = "SELECT t.*, s.name as subject_name, 
-                          DATE_FORMAT(t.created_at, '%d.%m.%Y') as created_date
-                          FROM tests t 
-                          LEFT JOIN subjects s ON t.subject_id = s.id 
-                          WHERE t.id = $test_id";
-                $getResult = $conn->query($getSql);
-                $newTest = $getResult->fetch_assoc();
-                
-                echo json_encode($newTest);
-                
-            } catch (Exception $e) {
-                $conn->rollback();
-                http_response_code(500);
-                echo json_encode(['error' => $e->getMessage()]);
-            }
-             } else {
-            http_response_code(400);
-            echo json_encode(['error' => 'Не все обязательные поля заполнены']);
-        }
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    if (empty($data['name']) || empty($data['subject_id']) || empty($data['questions'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Не все поля заполнены']);
         break;
+    }
+    
+    $conn->begin_transaction();
+    
+    try {
+        $name = $conn->real_escape_string($data['name']);
+        $subject_id = intval($data['subject_id']);
+        $question_count = count($data['questions']);
+        
+        $stmt = $conn->prepare("INSERT INTO tests (name, subject_id, question_count) VALUES (?, ?, ?)");
+        $stmt->bind_param("sii", $name, $subject_id, $question_count);
+        $stmt->execute();
+        $test_id = $conn->insert_id;
+        
+        foreach ($data['questions'] as $q_index => $question) {
+            $q_text = $conn->real_escape_string($question['text']);
+            $q_order = $q_index + 1;
+            
+            $stmt = $conn->prepare("INSERT INTO questions (test_id, question_text, question_order) VALUES (?, ?, ?)");
+            $stmt->bind_param("isi", $test_id, $q_text, $q_order);
+            $stmt->execute();
+            $question_id = $conn->insert_id;
+            
+            foreach ($question['options'] as $opt_index => $option) {
+                $opt_text = $conn->real_escape_string($option['text']);
+                $is_correct = $option['isCorrect'] ? 1 : 0;
+                
+                $stmt = $conn->prepare("INSERT INTO options (question_id, option_text, is_correct) VALUES (?, ?, ?)");
+                $stmt->bind_param("isi", $question_id, $opt_text, $is_correct);
+                $stmt->execute();
+            }
+        }
+        
+        $conn->commit();
+        echo json_encode(['success' => true, 'test_id' => $test_id]);
+        
+    } catch (Exception $e) {
+        $conn->rollback();
+        http_response_code(500);
+        echo json_encode(['error' => 'Ошибка сохранения: ' . $e->getMessage()]);
+    }
+    break;            
+              
         
     case 'DELETE':
         // Удалить тест

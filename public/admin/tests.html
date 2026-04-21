@@ -9,16 +9,19 @@
 </head>
 <body>
     <div class="container">
-        <header>
+         <header>
             <div class="logo">
                 <div class="logo-icon">
                     <i class="fas fa-school"></i>
                 </div>
                 <div class="logo-text">
-                    <h1>Административная панель</h1>
+                     <h1>Административная панель</h1>
                     <p>Управление учебным заведением</p>
                 </div>
+
+              
             </div>
+              <a href="../index.php" class="btn btn-danger">Выйти</a>
         </header>
 
         <div class="main-layout">
@@ -99,7 +102,7 @@
                             <label for="test-subject">Предмет *</label>
                             <select id="test-subject" required>
                                 <option value="">Выберите предмет</option>
-                                <!-- добавление будет через js -->
+                                <!-- добавление через js -->
                             </select>
                         </div>
                     </div>
@@ -115,18 +118,16 @@
                             </div>
                             <div class="form-group">
                                 <label for="question-text-1">Текст вопроса *</label>
-                                <input type="text" id="question-text-1" placeholder="Введите вопрос" required>
+                                <input type="text" id="question-text-1" placeholder="Введите вопрос">
                             </div>
                             <div class="options-list">
                                 <div class="option-item">
-                                    <input type="radio" name="correct-answer-1" value="1" required>
-                                    <input type="text" placeholder="Вариант ответа 1" class="option-text" required>
-                                    <span class="correct-badge">Правильный ответ</span>
+                                    <input type="checkbox" class="correct-checkbox" value="1">
+                                    <input type="text" placeholder="Вариант ответа 1" class="option-text" required >
                                 </div>
                                 <div class="option-item">
-                                    <input type="radio" name="correct-answer-1" value="2" required>
-                                    <input type="text" placeholder="Вариант ответа 2" class="option-text" required>
-                                    <span class="correct-badge">Правильный ответ</span>
+                                    <input type="checkbox" class="correct-checkbox" value="2">
+                                    <input type="text" placeholder="Вариант ответа 2" class="option-text" required >
                                 </div>
                             </div>
                             <button type="button" class="btn btn-sm add-option-btn" data-question-id="1">
